@@ -1,10 +1,10 @@
 """
-Project: Python based voice assistant
+Project: Python Based AI Voice Assistant
 @author: Akshay Dattatray Khare
 """
 import pyttsx3
 import speech_recognition as sr
-import datetime
+import datetime 
 from datetime import date
 import calendar
 import time
@@ -16,11 +16,17 @@ import smtplib
 import winsound
 import pyautogui
 import cv2
+from pygame import mixer
 from tkinter import *
 from sqlite3 import *
 
 conn = connect("voice_assistant_asked_questions.db")
+
 conn.execute("CREATE TABLE IF NOT EXISTS `voicedata`(id INTEGER PRIMARY KEY AUTOINCREMENT,command VARCHAR(201))")
+
+conn.execute("CREATE TABLE IF NOT EXISTS `review`(id INTEGER PRIMARY KEY AUTOINCREMENT, review VARCHAR(50), type_of_review VARCHAR(50))")
+
+conn.execute("CREATE TABLE IF NOT EXISTS `emoji`(id INTEGER PRIMARY KEY AUTOINCREMENT,emoji VARCHAR(201))")
 
 global query
 engine = pyttsx3.init('sapi5')
@@ -30,6 +36,40 @@ engine.setProperty('voice', voices[0].id)
 def speak(audio):
     engine.say(audio)
     engine.runAndWait()
+    
+def detect_face():
+    cascPath=os.path.dirname(cv2.__file__)+"/data/haarcascade_frontalface_default.xml"
+    faceCascade = cv2.CascadeClassifier(cascPath)
+    video_capture = cv2.VideoCapture(0)
+
+    while True:
+        # Capture frame-by-frame
+        ret, frames = video_capture.read()
+
+        gray = cv2.cvtColor(frames, cv2.COLOR_BGR2GRAY)
+
+        faces = faceCascade.detectMultiScale(
+                gray,
+                scaleFactor=1.1,
+                minNeighbors=5,
+                minSize=(30, 30),
+                flags=cv2.CASCADE_SCALE_IMAGE
+                )
+
+        # Draw a rectangle around the faces
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frames, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
+        # Display the resulting frame
+        cv2.imshow('Video', frames)
+        speak("detecting face")
+        print("Detecting face.....")
+        time.sleep(10)      
+        pyautogui.press('q')
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    video_capture.release()
+    cv2.destroyAllWindows()
     
 def wishMe():
     hour = int(datetime.datetime.now().hour)
@@ -232,7 +272,7 @@ def calculator():
                 else:
                     speak('ok')
             except Exception as e:
-                print(e)
+                #print(e)
                 speak('I unable to calculate its factorial.')
                 speak('Do you want to do another calculation?')
                 query = takeCommand().lower()
@@ -554,8 +594,8 @@ def sendEmail(to,content):
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
     server.starttls()
-    server.login('your_mail_id@gmail.com','your_password')
-    server.sendmail('your_mail_id@gmail.com',to,content)
+    server.login('akshaykhare0501@gmail.com','Akshay@123')
+    server.sendmail('akshaykhare0501@gmail.com',to,content)
     server.close()
     
 def brightness():
@@ -601,7 +641,7 @@ def brightness():
             speak('Please select 25, 50, 75 or 100....... Say again.')
             brightness()
     except exception as e:
-        print(e)
+        #print(e)
         speak('Something went wrong')
         
 def close_window():
@@ -613,7 +653,7 @@ def close_window():
             speak('ok')
             pyautogui.moveTo(1000,500)
     except exception as e:
-        print(e)
+        #print(e)
         speak('error')
         
 def whatsapp():
@@ -699,7 +739,114 @@ def whatsapp():
                 speak('ok')
     else:
         speak('ok')
+        
+def alarm():
+    root = Tk() 
+    root.title('Akshu2020 Alarm-Clock') 
+    speak('Please enter the time in the format hour, minutes and seconds. When the alarm should rang?')
+    speak('Please enter the time greater than the current time')
+    def setalarm():
+        alarmtime = f"{hrs.get()}:{mins.get()}:{secs.get()}"
+        print(alarmtime)
+        if(alarmtime!="::"):
+            alarmclock(alarmtime) 
+        else:
+            speak('You have not entered the time.')
+    def alarmclock(alarmtime): 
+        while True:
+            time.sleep(1)
+            time_now=datetime.datetime.now().strftime("%H:%M:%S")
+            print(time_now)
+            if time_now == alarmtime:
+                Wakeup=Label(root, font = ('arial', 20, 'bold'), text="Wake up! Wake up! Wake up",bg="DodgerBlue2",fg="white").grid(row=6,columnspan=3)
+                speak("Wake up, Wake up")
+                print("Wake up!")           
+                mixer.init()
+                mixer.music.load(r'C:\Users\Admin\Music\Playlists\wake-up-will-you-446.mp3')
+                mixer.music.play()
+                break
+        speak('you can click on close icon to close the alarm window.')
+    hrs=StringVar()
+    mins=StringVar()
+    secs=StringVar()
+    greet=Label(root, font = ('arial', 20, 'bold'),text="Take a short nap!").grid(row=1,columnspan=3)
+    hrbtn=Entry(root,textvariable=hrs,width=5,font =('arial', 20, 'bold'))
+    hrbtn.grid(row=2,column=1)
+    minbtn=Entry(root,textvariable=mins, width=5,font = ('arial', 20, 'bold')).grid(row=2,column=2)
+    secbtn=Entry(root,textvariable=secs, width=5,font = ('arial', 20, 'bold')).grid(row=2,column=3)
+    setbtn=Button(root,text="set alarm",command=setalarm,bg="DodgerBlue2", fg="white",font = ('arial', 20, 'bold')).grid(row=4,columnspan=3)
+    timeleft = Label(root,font=('arial', 20, 'bold')) 
+    timeleft.grid()
+  
+    mainloop()
+    
+def select1():
+    global vs
+    global root3
+    global type_of_review 
+
+    if vs.get() == 1:
+        message.showinfo(" ","Thank you for your review!!")
+        review = "Very Satisfied"
+        type_of_review = "Positive"
+        root3.destroy()   
+    elif vs.get() == 2:
+        message.showinfo(" ","Thank you for your review!!")
+        review = "Satisfied"
+        type_of_review = "Positive"
+        root3.destroy()
+    elif vs.get() == 3:
+        message.showinfo(" ","Thank you for your review!!!!")
+        review = "Neither Satisfied Nor Dissatisfied"
+        type_of_review = "Neutral"
+        root3.destroy()
+    elif vs.get() == 4:
+        message.showinfo(" ","Thank you for your review!!")
+        review = "Dissatisfied"
+        type_of_review = "Negative"
+        root3.destroy()
+    elif vs.get() == 5:
+        message.showinfo(" ","Thank you for your review!!") 
+        review = "Very Dissatisfied"
+        type_of_review = "Negative"
+        root3.destroy()
+    elif vs.get() == 6:
+        message.showinfo(" ","    Ok    ") 
+        review = "I do not want to give review"
+        type_of_review = "No review"
+        root3.destroy()
+    try:
+        conn.execute(f"INSERT INTO `review`(review,type_of_review) VALUES('{review}', '{type_of_review}')")
+        conn.commit()                
+    except Exception as e:
+        pass
+
+def select_review():
+    global root3
+    global vs
+    global type_of_review
+    root3 = Tk()
+    root3.title("Select an option")
+    
+    vs = IntVar()
+    string = "Are you satisfied with my performance?"
+    msgbox = Message(root3,text=string)
+    msgbox.config(bg="lightgreen",font = "(20)")
+    msgbox.grid(row=0,column=0)
+    rs1=Radiobutton(root3,text="Very Satisfied",font="(20)",value=1,variable=vs).grid(row=1,column=0,sticky=W)
+    rs2=Radiobutton(root3,text="Satisfied",font="(20)",value=2,variable=vs).grid(row=2,column=0,sticky=W)
+    rs3=Radiobutton(root3,text="Neither Satisfied Nor Dissatisfied",font="(20)",value=3,variable=vs).grid(row=3,column=0,sticky=W)
+    rs4=Radiobutton(root3,text="Dissatisfied",font="(20)",value=4,variable=vs).grid(row=4,column=0,sticky=W)
+    rs5=Radiobutton(root3,text="Very Dissatisfied",font="(20)",value=5,variable=vs).grid(row=5,column=0,sticky=W)
+    rs6=Radiobutton(root3,text="I don't want to give review",font="(20)",value=6,variable=vs).grid(row=6,column=0,sticky=W)
+
+    bs = Button(root3,text="Submit",font="(20)",activebackground="yellow",activeforeground="green",command=select1)
+    bs.grid(row=7,columnspan=2)
+    
+    root3.mainloop()
+
 if __name__ == "__main__":
+    detect_face()
     wishMe()
     said = True
     while said:
@@ -779,10 +926,10 @@ if __name__ == "__main__":
             time.sleep(3)
             speak('Enter the word, in the search bar of the dictionary, whose defination or synonyms you want to know')
             time.sleep(15)
-        
-        
-        elif 'play' in query and ('music' in query or 'song' in query) :
-            speak('Sorry sir, I am not able to play music')
+            
+        elif 'face' in query and ('detect' in query or 'identif' in query or 'point' in query or 'highlight' in query or 'focus' in query):
+            speak('yes')
+            detect_face()
             
         elif ('identif' in query and 'emoji' in query) or ('sentiment' in query and ('analysis' in query or 'identif' in query)):
             speak('Please enter only one emoji at a time.')
@@ -850,10 +997,10 @@ if __name__ == "__main__":
                 speak("I don't know about this emoji")
                 print("I don't know about this emoji")
             try:
-                conn.execute(f"INSERT INTO `voicedata`(command) VALUES('{emoji}')")
+                conn.execute(f"INSERT INTO `emoji`(emoji) VALUES('{emoji}')")
                 conn.commit()                
             except Exception as e:
-                print('Error in storing emoji in database')
+                #print('Error in storing emoji in database')
                 pass
                            
         elif 'time' in query:
@@ -871,21 +1018,42 @@ if __name__ == "__main__":
         elif 'quit' in query:
             speak('Ok, Thank you Sir.')
             said = False
+            speak('Please give the review. It will help me to improve my performance.')
+            select_review()
+            
         elif 'exit' in query:
             speak('Ok, Thank you Sir.')
             said = False
+            speak('Please give the review. It will help me to improve my performance.')
+            select_review()
+            
         elif 'stop' in query:
             speak('Ok, Thank you Sir.')
             said = False
-        elif 'shut down' in query:
+            speak('Please give the review. It will help me to improve my performance.')
+            select_review()
+            
+        elif 'shutdown' in query or 'shut down' in query:
             speak('Ok, Thank you Sir.')
             said = False
+            speak('Please give the review. It will help me to improve my performance.')
+            select_review()
+            
         elif 'close you' in query:
             speak('Ok, Thank you Sir.')
             said = False
+            speak('Please give the review. It will help me to improve my performance.')
+            select_review()
+            try:
+                conn.execute(f"INSERT INTO `voice_assistant_review`(review, type_of_review) VALUES('{review}', '{type_of_review}')")
+                conn.commit()                
+            except Exception as e:
+                pass
         elif 'bye' in query:
             speak('Bye Sir')
             said = False
+            speak('Please give the review. It will help me to improve my performance.')
+            select_review()
             
         elif 'wait' in query or 'hold' in query:
             
@@ -980,7 +1148,7 @@ if __name__ == "__main__":
                     else:
                         speak('ok sir')
                 except Exception as e:
-                    print(e)
+                    #print(e)
                     time.sleep(3)
                     print('I am sorry sir. There is some problem in loading the game. So I cannot open it.')
             elif 'tic' in query or 'tac' in query:
@@ -1001,7 +1169,7 @@ if __name__ == "__main__":
                     stop_game = False
                     mainloop()
                 except Exception as e:
-                    print(e)
+                    #print(e)
                     time.sleep(3)
                     speak('I am sorry sir. There is some problem in loading the game. So I cannot open it.')
             elif 'mar' in query or 'mer' in query or 'my' in query:
@@ -1120,7 +1288,7 @@ if __name__ == "__main__":
                 sendEmail(to, content)
                 speak("Email has been sent")
             except Exception as e:
-                print(e)
+                #print(e)
                 speak("sorry sir. I am not able to send this email")
         elif 'currency' in query and 'conver' in query:
             speak('I can convert, US dollar into indian rupee, and indian rupee into US dollar. Do you want to continue it?')
@@ -1221,15 +1389,15 @@ if __name__ == "__main__":
             speak('I cannot sing a song. But I know the 7 sur in indian music, saaareeegaaamaaapaaadaaanisaa')
         
         
-        elif 'day before today' in query or 'date before today' in query or 'yesterday' in query or 'previous day' in query :
-            td = datetime.date.today() + datetime.timedelta(days= -1)
-            print(td)
-            speak(td)
-        elif 'day after tomorrow' in query or 'date after tomorrow' in query :
+        elif 'day after tomorrow' in query or 'date after tomorrow' in query:
             td = datetime.date.today() + datetime.timedelta(days=2)
             print(td)
             speak(td)
-        elif ('tomorrow' in query and 'date' in query) or 'what is tomorrow' in query :
+        elif 'day before today' in query or 'date before today' in query or 'yesterday' in query or 'previous day' in query:
+            td = datetime.date.today() + datetime.timedelta(days= -1)
+            print(td)
+            speak(td)
+        elif ('tomorrow' in query and 'date' in query) or 'what is tomorrow' in query or (('day' in query or 'date' in query) and 'after today' in query):
             td = datetime.date.today() + datetime.timedelta(days=1)
             print(td)
             speak(td)
@@ -1243,6 +1411,7 @@ if __name__ == "__main__":
             current_date = date.today()           
             print(f"Today's date is {current_date}")
             speak(f'Todays date is {current_date}')
+            
         elif 'year' in query or ('current' in query and 'year' in query):
             current_date = date.today()
             m = current_date.year
@@ -1481,6 +1650,8 @@ if __name__ == "__main__":
                 speak('I am unable to answer your question.')
                 
         
+        elif 'alarm' in query:
+            alarm()
         elif 'bharat mata ki' in query:
             speak('jay')
         elif 'kem chhe' in query:
@@ -1561,7 +1732,7 @@ if __name__ == "__main__":
                         
             time.sleep(6)
             
-        elif 'musical instru' in query:
+        elif 'play' in query and 'instru' in query:
             speak('Yes sir, I can play piano.')           
             winsound.Beep(200,500)            
             winsound.Beep(250,500)           
@@ -1573,6 +1744,16 @@ if __name__ == "__main__":
             winsound.Beep(550,500)
                         
             time.sleep(6)
+            
+        elif 'play' in query or 'turn on' in query and ('music' in query or 'song' in query) :
+           try:
+               music_dir = 'C:\\Users\\Admin\\Music\\Playlists'
+               songs = os.listdir(music_dir)
+               print(songs)
+               os.startfile(os.path.join(music_dir, songs[0]))
+           except Exception as e:
+               #print(e)
+               speak('Sorry sir, I am not able to play music')
             
         elif (('open' in query or 'turn on' in query) and 'camera' in query) or (('click' in query or 'take' in query) and ('photo' in query or 'pic' in query)):
             speak("Opening camera")
@@ -1892,4 +2073,6 @@ if __name__ == "__main__":
         except Exception as e:
             pass
       
+
+
 
