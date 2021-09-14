@@ -595,8 +595,8 @@ def sendEmail(to,content):
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
     server.starttls()
-    server.login('akshaykhare0501@gmail.com','Akshay@123')
-    server.sendmail('akshaykhare0501@gmail.com',to,content)
+    server.login('xyz123@gmail.com','password')
+    server.sendmail('xyz123@gmail.com',to,content)
     server.close()
     
 def brightness():
