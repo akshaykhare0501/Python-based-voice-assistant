@@ -28,4 +28,5 @@ and some other functions....
 
 ## Requirements:
 1) Install DB Browser to store this database.
-2) Install all required libraries which I have imported in the code.
+2) Install all required libraries which I have imported in the code. Some libraies are already available.
+3) Install this libraries: pyttsx3, speech_recognition, pyaudio, wikipedia, webbrowser, smtplib, winsound, pyautogui, cv2, pygame, tkinter, sqlite3
