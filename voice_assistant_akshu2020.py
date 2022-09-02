@@ -1,25 +1,38 @@
-"""
+'''
 Project: Python Based AI Voice Assistant
 @author: Akshay Dattatray Khare
-"""
-import pyttsx3
-import speech_recognition as sr
-import datetime 
-from datetime import date
-import calendar
-import time
-import math
-import wikipedia
-import webbrowser
-import os
-import smtplib
-import winsound
-import pyautogui
-import cv2
-from pygame import mixer
-from tkinter import *
-import tkinter.messagebox as message
-from sqlite3 import *
+'''
+try: 
+    import pyttsx3
+    import speech_recognition as sr
+    import datetime 
+    from datetime import date
+    import calendar
+    import time
+    import math
+    import wikipedia
+    import webbrowser
+    from gtts import gTTS
+    from playsound import  playsound
+    import os
+    import smtplib
+    import winsound
+    import urllib.request
+    import pyautogui
+    import pywhatkit
+    import cv2
+    import pyqrcode
+    import png
+    import turtle
+    from pyqrcode import QRCode
+    from pygame import mixer
+    from PIL import Image ,ImageChops
+    from tkinter import *
+    import tkinter.messagebox as message
+    from pytube import YouTube
+    from sqlite3 import *
+except Exception as e:
+    print(e)
 
 conn = connect("voice_assistant_asked_questions.db")
 
@@ -30,6 +43,7 @@ conn.execute("CREATE TABLE IF NOT EXISTS `review`(id INTEGER PRIMARY KEY AUTOINC
 conn.execute("CREATE TABLE IF NOT EXISTS `emoji`(id INTEGER PRIMARY KEY AUTOINCREMENT,emoji VARCHAR(201))")
 
 global query
+global Query
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
@@ -37,7 +51,7 @@ engine.setProperty('voice', voices[0].id)
 def speak(audio):
     engine.say(audio)
     engine.runAndWait()
-    
+
 def detect_face():
     cascPath=os.path.dirname(cv2.__file__)+"/data/haarcascade_frontalface_default.xml"
     faceCascade = cv2.CascadeClassifier(cascPath)
@@ -87,7 +101,9 @@ def takeCommand():
     global query
     
     r = sr.Recognizer()
-    with sr.Microphone() as source:
+    with sr.Microphone() as source: 
+        r.adjust_for_ambient_noise(source)
+        #r.energy_threshold = 450
         print("Listening...")
         r.pause_threshold = 0.9 
         audio = r.listen(source)
@@ -99,10 +115,28 @@ def takeCommand():
         
     except Exception as e:
         #print(e)     
-        print("Say that again please...")  
-        #speak('Say that again please...')
+        print("Say that again please...")        
         return "None"    
     return query
+
+def takeCommandHindi():
+    
+	r = sr.Recognizer()
+	with sr.Microphone() as source:
+        #r.adjust_for_ambient_noise(source)
+		print('Listening')
+		r.pause_threshold = 0.7
+		audio = r.listen(source)
+		try:
+			print("Recognizing")
+			Query = r.recognize_google(audio, language='hi-In')
+			print("the query is printed='", Query, "'")
+		
+		except Exception as e:
+			#print(e)
+			print("Say again...")
+			return "None"
+		return Query
 
 def calculator():
     global query
@@ -563,7 +597,6 @@ def check_for_winner():
             
             root.destroy()
             
-    for i in range(3):
         if states[0][i] == states[1][i] == states[2][i]!= 0:
             b[0][i].config(bg='grey')
             b[1][i].config(bg='grey')
@@ -595,53 +628,53 @@ def sendEmail(to,content):
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
     server.starttls()
-    server.login('xyz123@gmail.com','password')
-    server.sendmail('xyz123@gmail.com',to,content)
+    server.login('akshaykhare0501@gmail.com','Akshay@123')
+    server.sendmail('akshaykhare0501@gmail.com',to,content)
     server.close()
     
 def brightness():
     try:
         query = takeCommand().lower()
         if '25' in query:
-            pyautogui.moveTo(1880,1050) 
+            pyautogui.moveTo(1780,1050) 
             pyautogui.click()
             time.sleep(1)
-            pyautogui.moveTo(1610,960)
+            pyautogui.moveTo(1605,820)
             pyautogui.click()
-            pyautogui.moveTo(1880,1050) 
+            pyautogui.moveTo(1780,1050) 
             pyautogui.click()
             speak('If you again want to change brihtness, say, change brightness')
         elif '50' in query:
-            pyautogui.moveTo(1880,1050) 
+            pyautogui.moveTo(1780,1050) 
             pyautogui.click()
             time.sleep(1)
             pyautogui.moveTo(1684,960)   
             pyautogui.click()
-            pyautogui.moveTo(1880,1050) 
+            pyautogui.moveTo(1780,1050) 
             pyautogui.click()
             speak('If you again want to change brihtness, say, change brightness')
         elif '75' in query:
-            pyautogui.moveTo(1880,1050) 
+            pyautogui.moveTo(1780,1050) 
             pyautogui.click()
             time.sleep(1)
             pyautogui.moveTo(1758,960)   
             pyautogui.click()
-            pyautogui.moveTo(1880,1050) 
+            pyautogui.moveTo(1780,1050) 
             pyautogui.click()
             speak('If you again want to change brihtness, say, change brightness')
         elif '100' in query or 'full' in query:
-            pyautogui.moveTo(1880,1050) 
+            pyautogui.moveTo(1780,1050) 
             pyautogui.click()
             time.sleep(1)
             pyautogui.moveTo(1835,960)   
             pyautogui.click()
-            pyautogui.moveTo(1880,1050) 
+            pyautogui.moveTo(1780,1050) 
             pyautogui.click()
             speak('If you again want to change brihtness, say, change brightness')
         else: 
             speak('Please select 25, 50, 75 or 100....... Say again.')
             brightness()
-    except exception as e:
+    except Exception as e:
         #print(e)
         speak('Something went wrong')
         
@@ -653,7 +686,7 @@ def close_window():
         else:
             speak('ok')
             pyautogui.moveTo(1000,500)
-    except exception as e:
+    except Exception as e:
         #print(e)
         speak('error')
         
@@ -780,7 +813,32 @@ def alarm():
     timeleft.grid()
   
     mainloop()
-    
+
+'''def image_difference():
+    os.startfile('C:\\Users\\Admin\\OneDrive\\Pictures\\Saved Pictures\\difference1.jpg')
+    os.startfile('C:\\Users\\Admin\\OneDrive\\Pictures\\Saved Pictures\\difference2.jpg')
+
+    time.sleep(5)
+    speak('If you want answer then say, show answer')
+    query = takeCommand().lower()
+    if 'show' in query and 'answer' in query:
+        img1=Image.open("C:\\Users\\Admin\\OneDrive\\Pictures\\Saved Pictures\\difference1.jpg")
+        img2=Image.open("C:\\Users\\Admin\\OneDrive\\Pictures\\Saved Pictures\\difference2.jpg")
+        diff=ImageChops.difference(img1,img2)
+        if diff.getbbox():
+            f.show()     
+        time.sleep(10)
+    else:
+        speak('ok, I will wait for 30 seconds, then I will show you the answer.')
+        time.sleep(30)
+        img1=Image.open("C:\\Users\\Admin\\OneDrive\\Pictures\\Saved Pictures\\difference1.jpg")
+        img2=Image.open("C:\\Users\\Admin\\OneDrive\\Pictures\\Saved Pictures\\difference2.jpg")
+        diff=ImageChops.difference(img1,img2)
+        if diff.getbbox():
+            f.show()     
+        time.sleep(10)
+'''   
+        
 def select1():
     global vs
     global root3
@@ -845,8 +903,32 @@ def select_review():
     bs.grid(row=7,columnspan=2)
     
     root3.mainloop()
-
+    
+def net_connection(host='http://google.com'):
+    try:
+        urllib.request.urlopen(host) #Python 3.x
+        return True
+    except:
+        return False
+    
+def rainbow_benzene():
+    try: 
+        colors = ['red', 'purple', 'blue', 'green', 'orange', 'yellow']
+        t = turtle.Pen()
+        turtle.bgcolor('black')
+        for x in range(180):
+	        t.pencolor(colors[x%6])
+	        t.width(x/100 + 1)
+	        t.forward(x)
+	        t.left(59)
+        time.sleep(7)
+        turtle.bye()
+    except Exception as e:
+        print(e)
+        speak('Sorry, some error occured!!')
+        
 if __name__ == "__main__":
+    global Query
     detect_face()
     wishMe()
     said = True
@@ -927,6 +1009,23 @@ if __name__ == "__main__":
             time.sleep(3)
             speak('Enter the word, in the search bar of the dictionary, whose defination or synonyms you want to know')
             time.sleep(15)
+        elif 'youtube' in query and 'video' in query and 'convert' in query and 'audio' in query:
+            video_url = input('Enter YouTube video URL: ')
+
+            if os.name == 'nt':
+                path = os.getcwd() + '\\'
+            else:
+                path = os.getcwd() + '/'
+
+            name = pytube.extract.video_id(video_url)
+            YouTube(video_url).streams.filter(only_audio=True).first().download(filename=name)
+            location = path + name + '.mp4'
+            renametomp3 = path + name + '.mp3'
+
+            if os.name == 'nt':
+                os.system('ren {0} {1}'. format(location, renametomp3))
+            else:
+                os.system('mv {0} {1}'. format(location, renametomp3))    
             
         elif 'face' in query and ('detect' in query or 'identif' in query or 'point' in query or 'highlight' in query or 'focus' in query):
             speak('yes')
@@ -1214,6 +1313,37 @@ if __name__ == "__main__":
             speak('Then speak with me for sometime.')
         elif 'i am bore' in query:
             speak('Then speak with me for sometime.')
+        elif 'calculat' in query and ('bmi' in query or ('body' in query and 'mass' in query and 'index' in query)):
+            try:
+                speak('Enter your height in centimeters')
+                Height=float(input("Enter your height in centimeters: "))
+                speak('Enter your Weight in Kg')
+                Weight=float(input("Enter your Weight in Kg: "))
+                Height = Height/100
+                BMI=Weight/(Height*Height)
+                print(f"your Body Mass Index is: {BMI} kg/m^2")
+                speak(f"your Body Mass Index is {BMI} Kg per meter square")
+                if(BMI>0):
+                    if(BMI<=16):
+                        print("you are severely underweight")
+                        speak("you are severely underweight")
+                    elif(BMI<=18.5):
+                        print("you are underweight")
+                        speak("you are underweight")
+                    elif(BMI<=25):
+                        print("you are Healthy")
+                        speak("you are Healthy")
+                    elif(BMI<=30):
+                        print("you are overweight")
+                        speak("you are overweight")
+                    else:
+                        print("you are severely overweight")
+                        speak("you are severely overweight")
+            except Exception as e:
+                #print(e)
+                print('invalid details')
+                speak('invalid details')
+                
         elif 'calculat' in query:
             speak('Yes. Which kind of calculation you want to do? add, substract, divide, multiply or anything else.')
             query = takeCommand().lower()
@@ -1385,11 +1515,54 @@ if __name__ == "__main__":
                 speak('lataa mangeshkar, is my favourite singer.')
             elif 'movie' in query:
                 speak('Taarre Zameen paar, such a treat')
-        
+        elif ('mimic' in query or 'dialogue' in query) and ('amit' in query or 'bachchan' in query):
+            speak('Rishtey mein to, hum tumhaare, baap lagte hain. Naam hai...Shehenshah.')
+            time.sleep(2)
+            speak('Hum jahan khade ho jaate hain,line.. wahise shuru hoti hai.')
+        elif ('song' in query and 'lata' in query) or ('your' in query and 'favourite' in query and 'song' in query):
+            ans = 'दिल तो पागल है... दिल दीवाना है... दिल तो पागल है... दिल दीवाना है...पहली पहली बार, मिलाता है यही.  सिने मे फिर आग लगाता है.  धीरे धीरे प्यार सिखाता है यही.  हँसाता है यही,  यही रुलाता है.  दिल तो पागल है... दिल दीवाना है... दिल तो पागल है... दिल दीवाना है' 
+            myobj=gTTS(text=ans,lang='hi',slow=False)
+            myobj.save('audio_1.mp3')
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
         elif 'sing a song' in query:
             speak('I cannot sing a song. But I know the 7 sur in indian music, saaareeegaaamaaapaaadaaanisaa')
         
-        
+        elif ('arrange' in query or 'sort' in query) and ('increasing' in query or 'ascending' in query) and ('order' in query or 'manner' in query):
+            a = []
+            speak('Please Enter the total number of elements which you want to sort')
+            number = int(input("Please Enter the total number of elements : "))          
+            for i in range(number):
+                value = int(input("Please enter the %d element : " %i))
+                a.append(value)
+
+            for i in range(number -1):
+                for j in range(number - i - 1):
+                    if(a[j] > a[j + 1]):
+                        temp = a[j]
+                        a[j] = a[j + 1]
+                        a[j + 1] = temp
+            print("The Sorted List in Ascending Order : ", a)
+            speak("Here is the Sorted List in Ascending Order")
+        elif ('arrange' in query or 'sort' in query) and ('descending' in query or 'decreasing' in query) and ('order' in query or 'manner' in query):
+            a = []
+            speak('Please Enter the total number of elements which you want to sort')
+            number = int(input("Please Enter the total number of elements : "))
+            for i in range(number):
+                value = int(input("Please enter the %d element : " %i))
+                a.append(value)
+
+            for i in range(number -1):
+                for j in range(number - i - 1):
+                    if(a[j] < a[j + 1]):
+                        temp = a[j]
+                        a[j] = a[j + 1]
+                        a[j + 1] = temp
+            print("The Sorted List in Descending Order : ", a)
+            speak("Here is the Sorted List in Descending Order")
+            
+        elif 'wh' in query and ('algo' in query or 'method' in query or 'technique' in query) and ('sort' in query or 'ascending' in query or 'descending' in query or 'decreasing' in query or 'increasing' in query):
+            speak('I am using bubble sort algorithm to sort the numbers in ascending or descending order')
         elif 'day after tomorrow' in query or 'date after tomorrow' in query:
             td = datetime.date.today() + datetime.timedelta(days=2)
             print(td)
@@ -1440,10 +1613,51 @@ if __name__ == "__main__":
             speak('I am coded in python programming language.')
         elif 'dream' in query:
             speak('I wish that I should be able to answer all the questions which will ask to me.')
-        elif 'sanskrit' in query:
-            speak('yadaa  yadaa  he  dharmasyaa .......  glaanirbhaavati  bhaaaraata.  abhyuthaanaam  adhaarmaasyaa  tadaa tmaanama sruujaamiyaahama')
-       
-                  
+        elif 'sanskrit' in query and ('speak' in query or 'tell' in query):           
+            speak('Yes, I can tell you some sanskrit shlokas, gayatri mantra, ganesh mantra, shivtandav stotra, mahishasurmardini stotra, Shlok in baghvat gita, and maha mrutyunjaya mantra ')    
+            speak('If you want to hear any sanskrit mantra, tell me the name of that mantra or shlok or stotra')
+        elif ('gayatri' in query or 'gaytri' in query) and ('mantra' in query or 'shlok' in query or 'stotra' in query):
+            ans = 'ओम  भू र्भुवः स्वः,.. तत्सवितुर्वरेण्यम ,.. भर्गो देवस्य धीमहि,.. धियो यो नः प्रचोदयात्'
+            myobj=gTTS(text=ans,lang='mr',slow=True)
+            myobj.save('audio_2.mp3')
+            print('ॐ भूर्भुवः स्वः\nतत्सवितुर्वरेण्यम\nभर्गो देवस्य धीमहि।\nधियो यो नः प्रचोदयात॥')
+            playsound('audio_2.mp3')
+            os.remove('audio_2.mp3')
+        elif ('ganesh' in query or 'ganpati' in query) and ('mantra' in query or 'shlok' in query or 'stotra' in query or 'vandan' in query):
+            ans = 'वक्रतुंडं  महाकायं , सूर्य कोटि समप्रभ:,.  निर्विघ्नंम  कुरु मे देवं  शुभ कार्येषु सर्वदा'
+            myobj=gTTS(text=ans,lang='mr',slow=True)
+            myobj.save('audio_3.mp3')
+            print('वक्र तुंड महाकाय, सूर्य कोटि समप्रभ:।\nनिर्विघ्नं कुरु मे देव शुभ कार्येषु सर्वदा')
+            playsound('audio_3.mp3')
+            os.remove('audio_3.mp3')
+        elif (('mahishasur' in query and 'mardini' in query) or 'mata' in query or 'maa' in query) and ('mantra' in query or 'shlok' in query or 'stotra' in query):
+            ans = 'अयि गिरि  नन्दिनि  नन्दितं  मेदिनि  विश्वविनोदिनि नन्दि नुते,.. गिरिवर  विन्ध्य शिरोधिनि वासिनि विष्णु  विलासिनि  जिष्णु  नुते,... भगवति हे शिति कण्ठ कुटुम्बिनि भूरि कुटुम्बिनि भूति कृते,.. जयं  जयं  हे महिषा सुरं  मर्दिनि रम्य कपर्दिनि शैलं  सुते.'
+            myobj=gTTS(text=ans,lang='mr',slow=True)
+            myobj.save('audio_4.mp3')
+            print('अयि गिरिनन्दिनि नन्दितमेदिनि विश्वविनोदिनि नन्दिनुते\nगिरिवरविन्ध्यशिरोऽधिनिवासिनि विष्णुविलासिनि जिष्णुनुते ।\nभगवति हे शितिकण्ठकुटुम्बिनि भूरिकुटुम्बिनि भूरिकृते\nजय जय हे महिषासुरमर्दिनि रम्यकपर्दिनि शैलसुते ॥ १ ॥')
+            playsound('audio_4.mp3')
+            os.remove('audio_4.mp3')
+        elif ('mrityunjay' in query or 'mrutyu' in query) and ('mantra' in query or 'shlok' in query or 'stotra' in query):
+            ans = 'ओम त्र्यम्बकंम यजामहे,..  सुगंन्धिं पुष्टिवर्धनम् ,.. उर्वारुकमिवं  बन्धनान्मृत्योर्मुक्षीय मामृतात्'
+            myobj=gTTS(text=ans,lang='mr',slow=True)
+            myobj.save('audio_5.mp3')
+            print('ॐ त्र्यम्बकं यजामहे\nसुगन्धिं पुष्टिवर्धनम् ।\nउर्वारुकमिव बन्धनान्\nमृत्योर्मुक्षीय मामृतात् ॥')
+            playsound('audio_5.mp3')
+            os.remove('audio_5.mp3')
+        elif ('geetha' in query or 'gita' in query or 'geeta' in query or 'yada' in query) and ('mantra' in query or 'shlok' in query or 'stotra' in query):
+            ans = 'यदा यदा हि धर्मस्य, ग्लानिर्भवति भारतं,.. अभ्युत्थानमधर्मस्य तदात्मानंम  सृजाम्यहम् ,...परित्राणाय साधूनांम  विनाशायचं  दुष्कृताम्,.. धर्मसंस्थापनार्थायं  सम्भवामि युगे युगे'
+            myobj=gTTS(text=ans,lang='mr',slow=True)
+            myobj.save('audio_6.mp3')
+            print('यदा यदा हि धर्मस्य ग्लानिर्भवति भारत।\nअभ्युत्थानमधर्मस्य तदात्मानं सृजाम्यहम् ॥\nपरित्राणाय साधूनां विनाशाय च दुष्कृताम् ।\nधर्मसंस्थापनार्थाय सम्भवामि युगे युगे ॥')
+            playsound('audio_6.mp3')
+            os.remove('audio_6.mp3')
+        elif ('shiv' in query or 'tandav' in query) and ('mantra' in query or 'shlok' in query or 'stotra' in query):
+            ans = 'जटा टवी गल ज्जलं  प्रवाह पावितस्थले, गले वलम्ब्य लम्बितां भुजंग  तुंग  मालिकाम्,.. डमड्डम ड्डमड्डम न्निनाद वड्डमर्वयं, चकारं  चण्डं  ताण्डवं तनोतु नः शिवः शिवंम'
+            myobj=gTTS(text=ans,lang='mr',slow=True)
+            myobj.save('audio_7.mp3')
+            print('जटाटवीगलज्जलप्रवाहपावितस्थले\nगलेऽवलम्ब्य लम्बितां भुजङ्गतुङ्गमालिकाम् ।\nडमड्डमड्डमड्डमन्निनादवड्डमर्वयं\nचकार चण्डताण्डवं तनोतु नः शिवः शिवम् ॥१॥')
+            playsound('audio_7.mp3')
+            os.remove('audio_7.mp3')
         elif 'answer is wrong' in query:
             speak('I am sorry Sir. I searched your question in wikipedia and thats why I told you this answer.')
         elif 'answer is incorrect' in query:
@@ -1649,8 +1863,150 @@ if __name__ == "__main__":
                 speak(results)
             except Exception as e:
                 speak('I am unable to answer your question.')
-                
+        elif ('speak' in query and 'hindi' in query) or ('hindi' in query and ('bol' in query or 'ba' in query)):
+            ans = 'मैं उस पर काम कर रही हूं' 
+            myobj=gTTS(text=ans,lang='hi',slow=False)
+            myobj.save('audio_1.mp3')
+            print(ans)
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
+        elif ('speak' in query and 'marathi' in query) or ('marathi' in query and 'bol' in query):
+            ans = 'मी त्याच्यावर काम करत आहे' 
+            myobj=gTTS(text=ans,lang='mr',slow=False)
+            myobj.save('audio_1.mp3')
+            print(ans)
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
+        elif ('speak' in query and ('gujrat' in query or 'gujarat' in query)):
+            ans = 'હું તેના પર કામ કરી રહ્યો છું ' 
+            myobj=gTTS(text=ans,lang='gu',slow=False)
+            myobj.save('audio_1.mp3')
+            print(ans)
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
+        elif 'speak' in query and 'tamil' in query:
+            ans = 'நான் அதில் வேலை செய்கிறேன் ' 
+            myobj=gTTS(text=ans,lang='ta',slow=False)
+            myobj.save('audio_1.mp3')
+            print(ans)
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
+        elif 'speak' in query and 'bengali' in query:
+            ans = 'আমি এটার উপর কাজ করছি ' 
+            myobj=gTTS(text=ans,lang='bn',slow=False)
+            myobj.save('audio_1.mp3')
+            print(ans)
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
+        elif 'speak' in query and 'urdu' in query:
+            ans = 'میں اس پر کام کر رہا ہوں ' 
+            myobj=gTTS(text=ans,lang='ur',slow=False)
+            myobj.save('audio_1.mp3')
+            print(ans)
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
         
+        elif 'speak' in query and 'kannad' in query:
+            ans = "ನಾನು ಅದರ ಮೇಲೆ ಕೆಲಸ ಮಾಡುತ್ತಿದ್ದೇನೆ " 
+            myobj=gTTS(text=ans,lang='kn',slow=False)
+            myobj.save('audio_1.mp3')
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
+        elif 'speak' in query and 'malayalam' in query:
+            ans = "ഞാൻ അത് ചെയ്യുകയാണ്" 
+            myobj=gTTS(text=ans,lang='ml',slow=False)
+            myobj.save('audio_1.mp3')
+            print(ans)
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
+        elif 'speak' in query and 'nepali' in query:
+            ans = "म यसमा काम गर्दैछु" 
+            myobj=gTTS(text=ans,lang='ne',slow=False)
+            myobj.save('audio_1.mp3')
+            print(ans)
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
+        
+        elif ('hindi' in query and 'speech' in query and 'text' in query):
+            speak('Say whatever in hindi which you want to convert into text')
+            takeCommandHindi()
+            speak('if you again want to convert your hindi speech into text format....say....hindi speech to text')
+        elif ('text' in query and 'to' in query and 'handwrit' in query):
+            speak('Yes I can convert text into handritten text in image format')
+            try:
+                speak('Enter the text')
+                tth = input("Enter the text: ")
+                
+                speak("Select colour, enter the number of colour ")
+                print('Red - 1\nGreen - 2\nBlue - 3\nDark Blue - 4\nBlack - 5')
+                colour = int(input("Select colour, enter the number of colour: "))
+               
+                if colour == 1:
+                    pywhatkit.text_to_handwriting(tth, rgb=(255, 0, 0))
+                elif colour == 2:
+                    pywhatkit.text_to_handwriting(tth, rgb=(0, 255, 0))
+                elif colour == 3:
+                    pywhatkit.text_to_handwriting(tth, rgb=(0, 0, 255))
+                elif colour == 4:
+                    pywhatkit.text_to_handwriting(tth, rgb=(0, 0, 150))
+                elif colour == 5:
+                    pywhatkit.text_to_handwriting(tth, rgb=(0, 0, 5))
+                else:
+                    pywhatkit.text_to_handwriting(tth, rgb=(0, 0, 150))
+                time.sleep(3)
+                print('Image is saved as pywhatkit.png')
+                speak('Image is saved as pywhatkit.png')
+            except Exception as e:
+                speak("Error!")
+                
+        elif ('speech' in query and 'to' in query and 'handwrit' in query):
+            speak('Yes I can convert speech into handritten text in image format')
+            try:
+                speak('Tell me what should I write')
+                query = takeCommand()  
+                speak("Select colour, enter the number of colour ")
+                print('Red - 1\nGreen - 2\nBlue - 3\nDark Blue - 4\nBlack - 5')
+                colour = int(input("Select colour, enter the number of colour: "))
+                
+                if colour == 1:
+                    pywhatkit.text_to_handwriting(query, rgb=(255, 0, 0))
+                elif colour == 2:
+                    pywhatkit.text_to_handwriting(query, rgb=(0, 255, 0))
+                elif colour == 3:
+                    pywhatkit.text_to_handwriting(query, rgb=(0, 0, 255))
+                elif colour == 4:
+                    pywhatkit.text_to_handwriting(query, rgb=(0, 0, 150))
+                elif colour == 5:
+                    pywhatkit.text_to_handwriting(query, rgb=(0, 0, 5))
+                else:
+                    pywhatkit.text_to_handwriting(query, rgb=(0, 0, 150))
+                time.sleep(3)
+                print('Image is saved as pywhatkit.png')
+                speak('Image is saved as pywhatkit.png')
+            except Exception as e:
+                speak("Error!")
+        elif 'speech' in query and 'to' in query and 'text' in query:
+            speak('Yes, I can do speech to text conversion')
+            speak('Say whateve you want to convert from speech to text. 3..2..1..start')
+            query = takeCommand()
+            print('Here is your text: ')
+            print(query)
+            
+        elif ('create' in query or 'generate' in query or 'make' in query) and 'qr' in query and 'code' in query:
+            speak('Enter information or website to link with the QR code')
+            QRstring = input("Enter information or website to link with the QR code: ")          
+            url = pyqrcode.create(QRstring)
+            url.png('C:\\Users\\Admin\\OneDrive\\Pictures\\Saved Pictures\\qr.png', scale = 8)
+            print('QR code is saved at this location: C:\\Users\\Admin\\OneDrive\\Pictures\\Saved Pictures\\qr.png')
+            speak('QR code generated.')
+            
+        elif (('apanar' in query or 'apna' in query) and ('nam' in query or 'naam' in query) and 'ki' in query) or 'tumi ke' in query:
+            ans = 'আমার নাম অক্ষু 2020। আমি ভয়েস সহকারী।' 
+            myobj=gTTS(text=ans,lang='bn',slow=False)
+            myobj.save('audio_1.mp3')
+            print(ans)
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
         elif 'alarm' in query:
             alarm()
         elif 'bharat mata ki' in query:
@@ -1682,8 +2038,13 @@ if __name__ == "__main__":
             speak('Thank you sir. It is because of artificial intelligence which had learnt by humans.')
         elif 'you are great' in query:
             speak('Thank you sir. It is because of artificial intelligence which had learnt by humans.')
-        elif 'tu kaun hai' in query:
-            speak('Meraa  naam  akshu2020 haai.')
+        elif 'tu kaun hai' in query or 'tum kaun ho' in query or 'tumhara naam kya hai' in query:
+            ans = 'मेरा नाम अक्षु 2020 है' 
+            myobj=gTTS(text=ans,lang='hi',slow=False)
+            myobj.save('audio_1.mp3')
+            print(ans)
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
         elif 'you speak' in query:
             speak('Yes, I can speak with you.')
         elif 'speak with ' in query:
@@ -1714,12 +2075,15 @@ if __name__ == "__main__":
             whatsapp()
         
         elif 'wh' in query or 'how' in query:
-            url = "https://www.google.co.in/search?q=" +(str(query))+ "&oq="+(str(query))+"&gs_l=serp.12..0i71l8.0.0.0.6391.0.0.0.0.0.0.0.0..0.0....0...1c..64.serp..0.0.0.UiQhpfaBsuU" 
-            webbrowser.open_new(url)
-            time.sleep(2)
-            speak('Here is your answer')
-            time.sleep(5)
-                
+            try:
+                url = "https://www.google.co.in/search?q=" +(str(query))+ "&oq="+(str(query))+"&gs_l=serp.12..0i71l8.0.0.0.6391.0.0.0.0.0.0.0.0..0.0....0...1c..64.serp..0.0.0.UiQhpfaBsuU" 
+                webbrowser.open_new(url)
+                time.sleep(2)
+                speak('Here is your answer')
+                time.sleep(5)
+            except Exception as e:
+                speak('Sorry, I am unable to answer it.')
+                print(e)
         elif 'piano' in query:
             speak('Yes sir, I can play piano.')           
             winsound.Beep(200,500)            
@@ -1745,7 +2109,15 @@ if __name__ == "__main__":
             winsound.Beep(550,500)
                         
             time.sleep(6)
-            
+        elif 'draw' in query or 'sketch' in query:
+            speak('Yes, I can draw rainbow benzene.Do you want to see it? Answer in yes or no.')
+            query = takeCommand().lower()
+            if 'y' in query:
+                rainbow_benzene()
+            else:
+                speak('Ok')
+                
+                
         elif 'play' in query or 'turn on' in query and ('music' in query or 'song' in query) :
            try:
                music_dir = 'C:\\Users\\Admin\\Music\\Playlists'
@@ -1818,12 +2190,26 @@ if __name__ == "__main__":
             pyautogui.screenshot('screenshot_by_akshu2020.png') 
             speak('The screenshot is saved as screenshot_by_akshu2020.png')
         elif 'click' in query and 'start' in query:
-            pyautogui.moveTo(10,1200)    
+            pyautogui.moveTo(630,1100)    
             pyautogui.click()
-        elif ('open' in query or 'click' in query) and 'calendar' in query:
+        elif ('open' in query or 'click' in query or 'close' in query) and 'calendar' in query:
             pyautogui.moveTo(1800,1200)   
             pyautogui.click() 
-        elif 'minimise' in query and 'screen' in query:
+        elif 'calendar' in query: 
+            try: 
+                c = calendar.TextCalendar(calendar.SUNDAY)
+                speak("Enter the year")
+                y = int(input("Enter the year: "))
+                speak("Enter the number of month")
+                m = int(input("Enter the number of month: "))
+                cldr = c.formatmonth(y,m)
+                print("--------------------")
+                print(cldr)
+                print("--------------------")
+                time.sleep(2)
+            except Exception as e:
+                speak('Sorry, I am unable to show it, some error occured.')
+        elif 'minimise' in query and ('screen' in query or 'window' in query):
             pyautogui.moveTo(1770,0)   
             pyautogui.click()
         elif 'increase' in query and ('volume' in query or 'sound' in query):
@@ -1856,6 +2242,21 @@ if __name__ == "__main__":
                     speak('Website is down, or no any website is available of this name.')
             except:
                 speak('URL not found')
+                
+        elif ('check' in query or 'tell' in query or 'let me know' in query) and ('internet' in query or 'wifi' in query) and 'connect' in query:
+            print( 'Internet is connected' if net_connection() else 'No internet!' )
+            speak('Internet is connected' if net_connection() else 'Internet is not connected')
+        elif ('check' in query or 'tell' in query or 'let me know' in query) and ('internet' in query or 'download' in query or 'upload' in query) and 'speed' in query:
+            speed = speedtest.Speedtest()
+            speak('Please wait')
+            print('Please wait....')
+            print('Counting......')
+            print(f"Download speed: {'{:.2f}'.format(speed.download()/1024/1024)} Mb/s")
+            speak('Here is the downloading speed.')
+            speak('Please wait, counting uploading speed')
+            print(f"Upload speed: {'{:.2f}'.format(speed.upload()/1024/1024)} Mb/s")
+            speak('Here is the uploading speed.')
+
         elif ('go' in query or 'open' in query) and 'settings' in query:
             pyautogui.moveTo(250,1200)  
             pyautogui.click()
@@ -1987,6 +2388,9 @@ if __name__ == "__main__":
                 time.sleep(1)
                 pyautogui.write('codeblocks')
                 pyautogui.press('enter')
+                
+        #elif ('identify' in query or 'find' in query) and 'difference' in query and ('image' in query or 'photo' in query or 'pic' in query):
+            #image_difference()
             
         elif 'me the answer' in query:
             speak('Yes sir, I will try my best to answer you.')
@@ -2014,18 +2418,19 @@ if __name__ == "__main__":
             speak('If you want to do any mathematical calculation then give me a command to open calculator.')
         elif 'hii' in query:
             speak('hii sir')
+        elif 'tu' in query and ('nav' in query or 'kon' in query):
+            ans = 'माझे नाव अक्षू ट्वेंटी-ट्वेंटी आहे,  मी एक व्हॉइस असिस्टंट आहे' 
+            myobj=gTTS(text=ans,lang='mr',slow=False)
+            myobj.save('audio_1.mp3')
+            print(ans)
+            playsound('audio_1.mp3')
+            os.remove('audio_1.mp3')
         elif 'hey' in query:
-            speak('hello sir')
-        elif 'hai' in query:
             speak('hello sir')
         elif 'hay' in query:
             speak('hello sir')
-        elif 'hi' in query:
-            speak('hii Sir')
         elif 'hello' in query:
             speak('hello Sir!')
-        elif 'kon' in query and 'aahe' in query:
-            speak('Me  eka  robot  aahee  sir. Maazee  naav  akshu2020  aahee.')
         elif 'nonsense' in query: 
             speak("I'm sorry sir")
         elif 'mad' in query:
@@ -2040,6 +2445,10 @@ if __name__ == "__main__":
             speak('Thank you sir')
         elif 'ok' in query:
             speak('Hmmmmmm')
+        elif 'hai' in query:
+            speak('hello sir')
+        elif 'hi' in query:
+            speak('hii Sir')
         
 
         elif 'akshu 2020' in query:
@@ -2073,5 +2482,4 @@ if __name__ == "__main__":
             conn.commit()                
         except Exception as e:
             pass
-      
-
+  
